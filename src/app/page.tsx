@@ -1,12 +1,9 @@
-"use client";
+// "use client";
 import Home from "@/components/Home";
 import "@/styles/Home.scss";
-import { QueryClient, QueryClientProvider } from "react-query";
+
+console.log();
 
 export default async function HomePage() {
-    return (
-        <QueryClientProvider client={new QueryClient()}>
-            <Home />
-        </QueryClientProvider>
-    );
+    return <Home />;
 }

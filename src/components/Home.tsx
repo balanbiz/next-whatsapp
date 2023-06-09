@@ -1,14 +1,13 @@
 "use client";
 import "@/styles/Home.scss";
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "react-query";
 import InputField from "./InputField";
 import FormBtn from "./FormBtn";
 import Messages from "./Messages";
-import { postResourse, getResourse, deleteResourse } from "@/server/fetch";
+import { getResourse } from "@/server/fetch";
 // Types
 import { FormEvent, KeyboardEvent } from "react";
-import { IInputFieldProps, IFormDataState } from "@/Types/types";
+import { IInputFieldProps, IFormDataState, IMessage } from "@/Types/types";
 
 const Home: React.FC = () => {
     // Vars
@@ -16,20 +15,19 @@ const Home: React.FC = () => {
     const [secondPartFormStatus, setsecondPartFormStatus] = useState<boolean>(false);
     const focusRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState(false);
-    const [messagesData, setMessagesData] = useState<Array<Object>>([]);
+    const [messagesData, setMessagesData] = useState<Array<IMessage>>([
+        { output: "This is a test chat" },
+        { input: "Wow, so cool :)" },
+        { output: "You can write messages" },
+    ]);
     const [formDataState, setFormDataState] = useState<IFormDataState>({
-        idInstance: "1101829393",
-        apiTokenInstance: "92465837b5f3443ab2c51c97aa1ac736aba23ca5a2dc417ea9",
-        chatId: "79022083756@c.us",
+        idInstance: "",
+        apiTokenInstance: "",
+        chatId: "",
         message: "",
         error: false,
     });
     const { idInstance, apiTokenInstance, chatId, message } = formDataState;
-    const { data, refetch } = useQuery<any>("receives", () => receivingQuery(), {
-        keepPreviousData: true,
-        refetchInterval: 7000,
-        enabled: false,
-    });
 
     // Functions
 
@@ -39,17 +37,18 @@ const Home: React.FC = () => {
         }
     }, []);
 
-    // useQuery not support start interval on command so
     useEffect(() => {
         let intervalId: NodeJS.Timer | null = null;
 
         if (secondPartFormStatus) {
-            refetch();
+            setMessagesData(messagesData => [...messagesData, { input: "Wow, so nice to meet you! Lets chat." }]);
             intervalId = setInterval(() => {
-                refetch();
-            }, 7000);
+                getResourse("/api/receive").then(res => {
+                    console.log(res);
+                    setMessagesData(messagesData => [...messagesData, { input: res }]);
+                });
+            }, 8000);
         }
-        console.log(data);
 
         return () => {
             if (intervalId) {
@@ -96,7 +95,7 @@ const Home: React.FC = () => {
     }
 
     function sendMessage() {
-        postResourse(`https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`, {
+        /* postResourse(`https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`, {
             chatId: chatId,
             message: message,
         })
@@ -107,23 +106,9 @@ const Home: React.FC = () => {
             })
             .catch(err => {
                 throw new Error(err);
-            });
-    }
+            }); */
 
-    function receivingQuery() {
-        getResourse(`api/receive`).then(res => {
-            console.log(res);
-            if (res) {
-                if (res.body.messageData) {
-                    setMessagesData(messagesData => [...messagesData, { input: res.body.messageData.extendedTextMessageData.text }]);
-                    /* deleteResourse(
-                        `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}`,
-                       ` https://api.green-api.com/waInstance${idInstance}/receiveNotification/${apiTokenInstance}`
-                        res.receiptId
-                    ); */
-                }
-            }
-        });
+        setMessagesData(messagesData => [...messagesData, { output: message }]);
     }
 
     function handleKeyDown(e: KeyboardEvent<HTMLFormElement>): void {
@@ -136,7 +121,7 @@ const Home: React.FC = () => {
 
     const idInstanceProps: IInputFieldProps = {
         name: "idInstance",
-        placeholder: "Ваш id",
+        placeholder: "Your id (anything)",
         formDataState,
         setFormDataState,
         error,
@@ -145,7 +130,7 @@ const Home: React.FC = () => {
 
     const ApiTokenProps: IInputFieldProps = {
         name: "apiTokenInstance",
-        placeholder: "Ваш токен",
+        placeholder: "Your token (anything)",
         formDataState,
         setFormDataState,
         error,
@@ -153,7 +138,7 @@ const Home: React.FC = () => {
 
     const phoneInputProps: IInputFieldProps = {
         name: "chatId",
-        placeholder: "Номер 11001234567@c.us",
+        placeholder: "Phone number (anything)",
         formDataState,
         setFormDataState,
         error,
@@ -161,7 +146,7 @@ const Home: React.FC = () => {
 
     const messageInputProps: IInputFieldProps = {
         name: "message",
-        placeholder: "Ваше сообщение",
+        placeholder: "Your message (anything)",
         formDataState,
         setFormDataState,
         error,
@@ -188,7 +173,7 @@ const Home: React.FC = () => {
                                                     setsecondPartFormStatus(state => (state = false));
                                             }}
                                         >
-                                            ВЕРНУТЬСЯ
+                                            GO BACK
                                         </button>
                                         <FormBtn error={error} />
                                     </div>
