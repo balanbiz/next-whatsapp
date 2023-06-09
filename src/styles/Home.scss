@@ -35,7 +35,7 @@
     }
     &__window {
         min-height: 20vh;
-        overflow-y: scroll;
+        overflow-y: auto;
         margin: 12px;
         border: 3px solid $activeColor;
         border-radius: 30px;

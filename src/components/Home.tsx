@@ -13,18 +13,23 @@ import { IInputFieldProps, IFormDataState } from "@/Types/types";
 const Home: React.FC = () => {
     // Vars
     const [firstPartFormStatus, setFirstPartFormStatus] = useState<boolean>(false);
+    const [secondPartFormStatus, setsecondPartFormStatus] = useState<boolean>(false);
     const focusRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState(false);
     const [messagesData, setMessagesData] = useState<Array<Object>>([]);
     const [formDataState, setFormDataState] = useState<IFormDataState>({
-        idInstance: "",
-        apiTokenInstance: "",
-        chatId: "",
+        idInstance: "1101829393",
+        apiTokenInstance: "92465837b5f3443ab2c51c97aa1ac736aba23ca5a2dc417ea9",
+        chatId: "79022083756@c.us",
         message: "",
         error: false,
     });
     const { idInstance, apiTokenInstance, chatId, message } = formDataState;
-    useQuery("receives", () => receivingQuery(), { keepPreviousData: true, refetchInterval: 7000 });
+    const { data, refetch } = useQuery<any>("receives", () => receivingQuery(), {
+        keepPreviousData: true,
+        refetchInterval: 7000,
+        enabled: false,
+    });
 
     // Functions
 
@@ -33,6 +38,25 @@ const Home: React.FC = () => {
             focusRef.current.focus();
         }
     }, []);
+
+    // useQuery not support start interval on command so
+    useEffect(() => {
+        let intervalId: NodeJS.Timer | null = null;
+
+        if (secondPartFormStatus) {
+            refetch();
+            intervalId = setInterval(() => {
+                refetch();
+            }, 7000);
+        }
+        console.log(data);
+
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [secondPartFormStatus]);
 
     function handleSubmit(e?: FormEvent<HTMLFormElement>): void {
         e && e.preventDefault();
@@ -67,6 +91,7 @@ const Home: React.FC = () => {
             }));
             setError(error => (error = false));
             sendMessage();
+            setsecondPartFormStatus(state => (state = true));
         }
     }
 
@@ -86,15 +111,16 @@ const Home: React.FC = () => {
     }
 
     function receivingQuery() {
-        getResourse(`https://api.green-api.com/waInstance${idInstance}/receiveNotification/${apiTokenInstance}`).then(res => {
+        getResourse(`api/receive`).then(res => {
             console.log(res);
             if (res) {
                 if (res.body.messageData) {
                     setMessagesData(messagesData => [...messagesData, { input: res.body.messageData.extendedTextMessageData.text }]);
-                    deleteResourse(
+                    /* deleteResourse(
                         `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}`,
+                       ` https://api.green-api.com/waInstance${idInstance}/receiveNotification/${apiTokenInstance}`
                         res.receiptId
-                    );
+                    ); */
                 }
             }
         });
@@ -104,10 +130,6 @@ const Home: React.FC = () => {
         if (e.key === "Enter") {
             handleSubmit(e);
         }
-    }
-
-    function log(...x: any): any {
-        console.log(x);
     }
 
     // Props
@@ -149,7 +171,6 @@ const Home: React.FC = () => {
 
     return (
         <section className="main">
-            {log("render Home", formDataState)}
             <div className="container">
                 <div className="main__wrap">
                     <div className="main__input">
@@ -162,7 +183,10 @@ const Home: React.FC = () => {
                                         <button
                                             className="main__btn main__btn-back"
                                             type="button"
-                                            onClick={() => setFirstPartFormStatus(firstPartFormStatus => !firstPartFormStatus)}
+                                            onClick={() => {
+                                                setFirstPartFormStatus(firstPartFormStatus => !firstPartFormStatus),
+                                                    setsecondPartFormStatus(state => (state = false));
+                                            }}
                                         >
                                             ВЕРНУТЬСЯ
                                         </button>
