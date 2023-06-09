@@ -1,0 +1,25 @@
+@import "./variables.scss";
+
+.input-field {
+    position: relative;
+    padding: 15px 0;
+    &__header {
+        position: absolute;
+        top: 7px;
+        left: 50%;
+        transform: translateX(-50%);
+        letter-spacing: 4px;
+        width: auto;
+        height: 10px;
+        padding: 0 7px;
+        background-color: #fff;
+    }
+    input {
+        width: 100%;
+        min-height: 50px;
+        text-align: center;
+        padding: 10px;
+        border: 2px solid $activeColor;
+        border-radius: 30px;
+    }
+}

@@ -1,0 +1,32 @@
+@import "./variables.scss";
+@import "./null.scss";
+
+body {
+    background-color: $backColor;
+    color: $fontColor;
+    text-shadow: $allTextShadow;
+    user-select: none;
+}
+
+.container {
+    max-width: $containerWidth + px;
+    padding: 0 15px;
+    margin: 0 auto;
+    text-align: center;
+    @media (max-width: 420px) {
+        padding: 0 6px;
+    }
+}
+
+section {
+    padding: 15px 0;
+}
+
+img {
+    user-drag: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
