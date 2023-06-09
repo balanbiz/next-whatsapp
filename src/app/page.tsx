@@ -1,3 +1,4 @@
+"use client";
 import Home from "@/components/Home";
 import "@/styles/Home.scss";
 import { QueryClient, QueryClientProvider } from "react-query";
