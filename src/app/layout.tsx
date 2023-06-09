@@ -1,7 +1,5 @@
-"use client";
 import Header from "@/components/Header";
 import "@/styles/globals.scss";
-import { QueryClient, QueryClientProvider } from "react-query";
 // Types
 import { Metadata } from "next";
 import { ReactNode } from "react";
@@ -16,7 +14,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <html lang="en">
             <body>
                 <Header />
-                <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+                {children}
             </body>
         </html>
     );
